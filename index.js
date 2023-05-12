@@ -18,8 +18,13 @@ app.use(fileUpload());
 
 const port = process.env.PORT || 5000;
 
-const client = new Client({ authStrategy: new LocalAuth() });
-
+// const client = new Client({ authStrategy: new LocalAuth() });
+const client = new Client({
+  authStrategy: new LocalAuth(),
+  puppeteer: {
+    args: ["--no-sandbox"],
+  },
+});
 // const client = new Client({
 //   puppeteer: {
 //     headless: true,
