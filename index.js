@@ -23,9 +23,15 @@ const ably = new Ably.Realtime(
 const channel1 = ably.channels.get("my-whatapp");
 
 app.get("/scan", (req, res) => {
-  client.on("qr", (qr) => {
-    res.send({ QCode: qr });
+  res.send({
+    data: {
+      id: 1,
+      name: "tareq",
+    },
   });
+  // client.on("qr", (qr) => {
+  //   res.send({ QCode: qr });
+  // });
 });
 
 client.on("ready", () => {
