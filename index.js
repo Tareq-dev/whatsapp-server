@@ -23,12 +23,32 @@ const port = process.env.PORT || 5000;
 // const channel1 = ably.channels.get("my-whatapp");
 
 app.get("/scan", (req, res) => {
-  res.send({
-    data: {
+  res.send([
+    {
+      userId: 1,
       id: 1,
-      name: "tareq",
+      title: "delectus aut autem",
+      completed: false,
     },
-  });
+    {
+      userId: 1,
+      id: 2,
+      title: "quis ut nam facilis et officia qui",
+      completed: false,
+    },
+    {
+      userId: 1,
+      id: 3,
+      title: "fugiat veniam minus",
+      completed: false,
+    },
+    {
+      userId: 1,
+      id: 4,
+      title: "et porro tempora",
+      completed: true,
+    },
+  ]);
   // client.on("qr", (qr) => {
   //   res.send({ QCode: qr });
   // });
