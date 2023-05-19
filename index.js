@@ -29,10 +29,9 @@ const channel1 = ably.channels.get("my-whatapp");
 const channel2 = ably.channels.get("loading-messages");
 const channel3 = ably.channels.get("user");
 
-client.on("qr", (qr) => {
-  channel.publish("qr", qr);
-  res.send(qr);
-});
+// client.on("qr", (qr) => {
+//   channel.publish("qr", qr);
+// });
 
 // client.on("ready", () => {
 //   console.log("client is ready");
@@ -48,7 +47,11 @@ client.on("qr", (qr) => {
 // client.initialize();
 
 app.get("/", (req, res) => {
-  res.send("Hello World of ph");
+  // res.send("Hello World of ph");
+  client.on("qr", (qr) => {
+    channel.publish("qr", qr);
+    res.send(qr);
+  });
 });
 
 app.listen(port, () => {
