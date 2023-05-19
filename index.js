@@ -4,8 +4,8 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const Ably = require("ably");
 const fileUpload = require("express-fileupload");
-const router = require("./routes/routes.js");
-const { client } = require("./config/whatsapp_config.js");
+// const router = require("./routes/routes.js");
+// const { client } = require("./config/whatsapp_config.js");
 
 app.use(
   cors({
@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
-app.use("/api", router);
+// app.use("/api", router);
 
 const port = process.env.PORT || 5000;
 
@@ -29,22 +29,22 @@ const channel1 = ably.channels.get("my-whatapp");
 const channel2 = ably.channels.get("loading-messages");
 const channel3 = ably.channels.get("user");
 
-client.on("qr", (qr) => {
-  channel.publish("qr", qr);
-});
+// client.on("qr", (qr) => {
+//   channel.publish("qr", qr);
+// });
 
-client.on("ready", () => {
-  console.log("client is ready");
-  const user = {
-    user_number: client.info.me.user,
-    user_name: client.info.pushname,
-  };
+// client.on("ready", () => {
+//   console.log("client is ready");
+//   const user = {
+//     user_number: client.info.me.user,
+//     user_name: client.info.pushname,
+//   };
 
-  channel1.publish("client-ready", "Client is ready!");
-  channel3.publish("user", user);
-});
+//   channel1.publish("client-ready", "Client is ready!");
+//   channel3.publish("user", user);
+// });
 
-client.initialize();
+// client.initialize();
 
 app.get("/", (req, res) => {
   res.send("Hello World of ph");
