@@ -6,10 +6,11 @@ const Ably = require("ably");
 const fileUpload = require("express-fileupload");
 const router = require("./routes/routes.js");
 const { client } = require("./config/whatsapp_config.js");
+// http://localhost:3000
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://whatsbulk-self.vercel.app",
     credentials: true,
   })
 );
