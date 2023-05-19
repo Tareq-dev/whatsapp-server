@@ -16,7 +16,6 @@ const db = mysql.createPool({
 //   port: 3306,
 // });
 
-// For pool initialization, see above
 db.getConnection(function (err, conn) {
   if (err) {
     console.log(err);
