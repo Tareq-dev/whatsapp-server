@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const Ably = require("ably");
 const fileUpload = require("express-fileupload");
 // const router = require("./routes/routes.js");
-// const { client } = require("./config/whatsapp_config.js");
+const { client } = require("./config/whatsapp_config.js");
 
 app.use(
   cors({
@@ -29,9 +29,10 @@ const channel1 = ably.channels.get("my-whatapp");
 const channel2 = ably.channels.get("loading-messages");
 const channel3 = ably.channels.get("user");
 
-// client.on("qr", (qr) => {
-//   channel.publish("qr", qr);
-// });
+client.on("qr", (qr) => {
+  channel.publish("qr", qr);
+  res.send(qr);
+});
 
 // client.on("ready", () => {
 //   console.log("client is ready");
