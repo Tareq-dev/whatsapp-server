@@ -4,7 +4,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const Ably = require("ably");
 const fileUpload = require("express-fileupload");
-// const router = require("./routes/routes.js");
+const router = require("./routes/routes.js");
 const { client } = require("./config/whatsapp_config.js");
 
 app.use(
@@ -18,7 +18,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(fileUpload());
-// app.use("/api", router);
+app.use("/api", router);
 
 const port = process.env.PORT || 5000;
 
