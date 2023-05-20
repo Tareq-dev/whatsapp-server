@@ -17,7 +17,7 @@ const resetPasswordMessage = (req, res) => {
   const { email } = req.body;
   const token = randomstring.generate();
 
-  const resetLink = `http://localhost:3000/reset/${token}`;
+  const resetLink = `https://whatsbulk-self.vercel.app/reset/${token}`;
 
   const mailOptions = {
     from: "tarequl.islalm@gmail.com",
