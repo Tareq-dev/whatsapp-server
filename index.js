@@ -11,7 +11,7 @@ const { client } = require("./config/whatsapp_config.js");
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://whatsbulk-self.vercel.app",
     credentials: true,
   })
 );
