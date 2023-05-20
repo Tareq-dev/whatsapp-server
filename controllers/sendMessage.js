@@ -17,6 +17,7 @@ const makingCsv = (Registered, Unregistered, res) => {
   res.attachment(fileName);
   res.csv(csvData);
 };
+
 const sendMessageByCount = (res, email, serializedNum, messageText, csv) => {
   db.query(
     "SELECT message FROM register WHERE email = ?",
@@ -26,7 +27,6 @@ const sendMessageByCount = (res, email, serializedNum, messageText, csv) => {
         console.error("Error retrieving message count:", err);
         return;
       }
-
       const messageCount = Number(results[0].message);
       const updatedBalance = messageCount - 1;
 
@@ -41,17 +41,18 @@ const sendMessageByCount = (res, email, serializedNum, messageText, csv) => {
               console.error("Error updating message count:", err);
               return;
             }
+
+            if (!csv) {
+              res.status(200).json({
+                success: 1,
+                messageCount: updatedBalance,
+                message: "Message sent successfully",
+              });
+            }
           }
         );
-        if (!csv) {
-          res.status(200).json({
-            success: 1,
-            messageCount: updatedBalance,
-            message: "Message sent successfully",
-          });
-        }
       } else {
-        return res.send({
+        res.send({
           success: 0,
           message: "You do not have enough balance",
         });
@@ -64,6 +65,7 @@ const checkRegisteredNumber = async function (number) {
   const isRegistered = await client.isRegisteredUser(number);
   return isRegistered;
 };
+
 module.exports.sendMessage = async (req, res, next) => {
   const whatsappNumber = req.body.whatsappNumber;
   const messageText = req.body.message;
@@ -72,7 +74,7 @@ module.exports.sendMessage = async (req, res, next) => {
   try {
     // Single number
     if (whatsappNumber && messageText) {
-      const isRegisteredNumber = await checkRegisteredNumber("8801568035983");
+      const isRegisteredNumber = await checkRegisteredNumber(whatsappNumber);
       if (isRegisteredNumber) {
         const sanitizedNumber = whatsappNumber
           .toString()
@@ -83,7 +85,7 @@ module.exports.sendMessage = async (req, res, next) => {
           sendMessageByCount(res, email, serializedNum, messageText);
         }
       } else {
-        return res.send({ status: 201 });
+        res.send({ status: 201 });
       }
     }
 
@@ -138,16 +140,16 @@ module.exports.sendMessage = async (req, res, next) => {
         const registeredStatuses = registeredNumbers.map(
           (num) => `${num}, Sent`
         );
-
-        makingCsv(registeredStatuses, unregisteredStatuses, res);
+        const csv = true;
 
         for (const phoneNumber of registeredNumbers) {
           const numberDetails = await client.getNumberId(phoneNumber);
           const serializedNum = numberDetails._serialized;
-          const csv = true;
           sendMessageByCount(res, email, serializedNum, messageText, csv);
-          // await client.sendMessage(numberDetails._serialized, messageText);
           await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+        if (csv) {
+          makingCsv(registeredStatuses, unregisteredStatuses, res);
         }
       }
 

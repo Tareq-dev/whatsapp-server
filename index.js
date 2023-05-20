@@ -7,10 +7,10 @@ const fileUpload = require("express-fileupload");
 const router = require("./routes/routes.js");
 const { client } = require("./config/whatsapp_config.js");
 // http://localhost:3000
-
+//https://whatsbulk-self.vercel.app
 app.use(
   cors({
-    origin: "https://whatsbulk-self.vercel.app",
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );
