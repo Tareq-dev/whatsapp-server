@@ -8,6 +8,7 @@ const router = require("./routes/routes.js");
 const { client } = require("./config/whatsapp_config.js");
 // http://localhost:3000
 //https://whatsbulk-self.vercel.app
+
 app.use(
   cors({
     origin: "http://localhost:3000",
@@ -49,7 +50,7 @@ client.on("ready", () => {
 client.initialize();
 
 app.get("/", (req, res) => {
-  res.send("Hello World of ph");
+  res.send("Hello World of whatsbulk");
 });
 
 app.listen(port, () => {
