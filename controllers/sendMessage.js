@@ -1,10 +1,8 @@
 const db = require("../config/db.js");
-const Ably = require("ably");
+
 const csv = require("csv-express");
 const { client } = require("../config/whatsapp_config.js");
-const ably = new Ably.Realtime(
-  "VSU5GA.7M4Y5Q:4Tok9TlkaNq5T8u5dKnJ42pu3oZrH0GYqKpkNPVqsHE"
-);
+const { ably, msgCount } = require("../config/realtimeAbly.js");
 const channel2 = ably.channels.get("loading-messages");
 const makingCsv = (Registered, Unregistered, res) => {
   const csvData = [
@@ -45,10 +43,13 @@ const sendMessageByCount = (res, email, serializedNum, messageText, csv) => {
             if (!csv) {
               res.status(200).json({
                 success: 1,
-                messageCount: updatedBalance,
                 message: "Message sent successfully",
               });
             }
+            const balance = {
+              updatedBalance,
+            };
+            msgCount.publish("messageCount", balance);
           }
         );
       } else {
