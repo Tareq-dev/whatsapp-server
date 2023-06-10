@@ -7,6 +7,7 @@ module.exports.user = async (req, res) => {
     const result = {
       email: data[0]?.email,
       message: data[0]?.message,
+      role: data[0]?.role,
     };
     res.send(result);
   });

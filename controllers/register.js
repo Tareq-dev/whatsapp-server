@@ -15,8 +15,14 @@ module.exports.register = async (req, res, next) => {
       const salt = bcrypt.genSaltSync(10);
       const hashedPassword = bcrypt.hashSync(req.body.password, salt);
       // return false;
-      const q = "INSERT INTO register (email, message, password) VALUES (?)";
-      const values = [req.body.email, req.body.message, hashedPassword];
+      const q =
+        "INSERT INTO register (email, message, password, role) VALUES (?)";
+      const values = [
+        req.body.email,
+        req.body.message,
+        hashedPassword,
+        req.body.role,
+      ];
       db.query(q, [values], (error, data) => {
         // console.log("data", data);
         if (error) return res.json(error);
