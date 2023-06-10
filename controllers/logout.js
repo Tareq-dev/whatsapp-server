@@ -1,7 +1,7 @@
 const { client } = require("../config/whatsapp_config");
 
 module.exports.logout = async (req, res) => {
-  // await client.logout();
+  await client.logout();
   res
     .clearCookie("access_token")
     .status(200)
