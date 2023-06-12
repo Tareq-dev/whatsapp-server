@@ -21,8 +21,8 @@ db.getConnection(function (err, conn) {
     console.log(err);
   }
   console.log("Successfully connect to the database.");
-
-  db.releaseConnection(conn);
+  conn.release();
+  // db.releaseConnection(conn);
 });
 
 module.exports = db;
