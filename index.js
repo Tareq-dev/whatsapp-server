@@ -11,7 +11,7 @@ const { ably } = require("./config/realtimeAbly.js");
 // url
 app.use(
   cors({
-    origin: "https://whatsbulk-self.vercel.app",
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );
