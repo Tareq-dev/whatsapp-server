@@ -12,9 +12,11 @@ const {
 const { allUser } = require("../controllers/allUser");
 const { makeAdmin } = require("../controllers/makeAdmin");
 const { balanceUpdate } = require("../controllers/balanceUpdate");
+const { session } = require("../controllers/session");
 const router = express.Router();
 
 router.get("/user", user);
+router.get("/session/:user_number", session);
 router.get("/all-users", allUser);
 router.post("/make-admin/:email", makeAdmin);
 router.post("/update-balance/:email/:message", balanceUpdate);
