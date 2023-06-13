@@ -13,17 +13,12 @@ const db = require("./config/db.js");
 // url
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://whatsbulk-self.vercel.app",
     credentials: true,
   })
 );
 
-// const client = new Client({
-//   authStrategy: new LocalAuth(),
-//   puppeteer: {
-//     args: ["--no-sandbox"],
-//   },
-// });
+ 
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
