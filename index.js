@@ -18,7 +18,6 @@ app.use(
   })
 );
 
- 
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -44,55 +43,11 @@ client.on("ready", () => {
     user_name: client.info.pushname,
   };
 
-  const query = "SELECT sessionId FROM sessions WHERE user_number = ?";
-  db.query(query, [user.user_number], (err, results) => {
-    if (err) {
-      console.error(
-        "Error retrieving session ID from the sessions table:",
-        err
-      );
-      return;
-    }
-
-    // If the session ID doesn't exist for the user, insert it
-    if (results.length === 0) {
-      const sessionId = generateRandomCode();
-      const insertQuery =
-        "INSERT INTO sessions (sessionId, user_number) VALUES (?, ?)";
-      db.query(
-        insertQuery,
-        [sessionId, user.user_number],
-        (err, insertResult) => {
-          if (err) {
-            console.error(
-              "Error inserting session ID into the sessions table:",
-              err
-            );
-            return;
-          }
-          console.log("sessionId inserted successfully");
-        }
-      );
-    }
-  });
-
   channel1.publish("client-ready", "Client is ready!");
   channel3.publish("user", user);
 });
 
 client.initialize();
-const generateRandomCode = () => {
-  const characters =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let randomCode = "";
-
-  for (let i = 0; i < 6; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    randomCode += characters[randomIndex];
-  }
-
-  return randomCode;
-};
 
 app.get("/", (req, res) => {
   res.send("Hello World of whatsbulk");

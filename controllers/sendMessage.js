@@ -73,9 +73,17 @@ module.exports.sendMessage = async (req, res, next) => {
   const email = req.body.email;
   const csvData = JSON.parse(req.body.CSVData);
   try {
+    function getNumberId(number) {
+      if (!number.endsWith("@c.us")) {
+        number += "@c.us";
+      }
+      return number;
+    }
+    const formattedNumber = getNumberId(whatsappNumber);
+
     // Single number
     if (whatsappNumber && messageText) {
-      const isRegisteredNumber = await checkRegisteredNumber(whatsappNumber);
+      const isRegisteredNumber = await checkRegisteredNumber(formattedNumber);
       if (isRegisteredNumber) {
         const sanitizedNumber = whatsappNumber
           .toString()
