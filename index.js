@@ -5,9 +5,8 @@ const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
 const router = require("./routes/routes.js");
 const { client } = require("./config/whatsapp_config.js");
-// const { Client, LocalAuth } = require("whatsapp-web.js");
 const { ably } = require("./config/realtimeAbly.js");
-const db = require("./config/db.js");
+
 // http://localhost:3000
 //https://whatsbulk-self.vercel.app
 // url
