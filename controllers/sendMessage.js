@@ -13,7 +13,7 @@ const makingCsv = (Registered, Unregistered, res) => {
 
   const fileName = `${client.info.me.user}-${client.info.pushname}.csv`;
   res.attachment(fileName);
-  res.csv(csvData);
+  return res.csv(csvData);
 };
 
 const sendMessageByCount = (res, email, serializedNum, messageText, csv) => {
@@ -25,39 +25,41 @@ const sendMessageByCount = (res, email, serializedNum, messageText, csv) => {
         console.error("Error retrieving message count:", err);
         return;
       }
-      const messageCount = Number(results[0].message);
+      const messageCount = Number(results[0]?.message);
       const updatedBalance = messageCount - 1;
 
-      if (messageCount > 0) {
-        client.sendMessage(serializedNum, messageText);
+      try {
+        if (messageCount > 0) {
+          client.sendMessage(serializedNum, messageText);
 
-        db.query(
-          "UPDATE register SET message = ? WHERE email = ?",
-          [updatedBalance, email],
-          (err) => {
-            if (err) {
-              console.error("Error updating message count:", err);
-              return;
-            }
+          db.query(
+            "UPDATE register SET message = ? WHERE email = ?",
+            [updatedBalance, email],
+            (err) => {
+              if (err) {
+                console.error("Error updating message count:", err);
+                return;
+              }
 
-            if (!csv) {
-              res.status(200).json({
-                success: 1,
-                message: "Message sent successfully",
-              });
+              if (!csv) {
+                res.status(200).json({
+                  success: 1,
+                  message: "Message sent successfully",
+                });
+              }
+              const balance = {
+                updatedBalance,
+              };
+              msgCount.publish("messageCount", balance);
             }
-            const balance = {
-              updatedBalance,
-            };
-            msgCount.publish("messageCount", balance);
-          }
-        );
-      } else {
-        res.send({
-          success: 0,
-          message: "You do not have enough balance",
-        });
-      }
+          );
+        } else {
+          res.send({
+            success: 0,
+            message: "You do not have enough balance",
+          });
+        }
+      } catch (error) {}
     }
   );
 };
@@ -133,12 +135,22 @@ module.exports.sendMessage = async (req, res, next) => {
         stopLoadingMessage();
       });
 
+      const checkRegisteredNumberCsv = async function (whatsappNumber) {
+        const isRegistered = await client.isRegisteredUser(
+          `${whatsappNumber}@c.us`
+        );
+        return isRegistered;
+      };
+
       async function sendMessage() {
-        const results = await Promise.all(csvData.map(checkRegisteredNumber));
-        const unregisteredNumbers = csvData.filter(
+        const filteredNullData = csvData.filter((value) => value !== null);
+        const results = await Promise.all(
+          filteredNullData.map(checkRegisteredNumberCsv)
+        );
+        const unregisteredNumbers = filteredNullData.filter(
           (number, index) => !results[index]
         );
-        const registeredNumbers = csvData.filter(
+        const registeredNumbers = filteredNullData.filter(
           (number, index) => results[index]
         );
 

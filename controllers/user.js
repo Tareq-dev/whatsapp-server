@@ -1,7 +1,7 @@
 const db = require("../config/db.js");
 
 module.exports.user = async (req, res) => {
-  const email = req.query.email;
+  const email = req.params?.email;
   const q = "SELECT * FROM register WHERE email = ?";
   db.query(q, [email], (error, data) => {
     const result = {

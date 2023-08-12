@@ -14,7 +14,7 @@ const { makeAdmin } = require("../controllers/makeAdmin");
 const { balanceUpdate } = require("../controllers/balanceUpdate");
 const router = express.Router();
 
-router.get("/user", user);
+router.get("/user/:email", user);
 router.get("/all-users", allUser);
 router.post("/make-admin/:email", makeAdmin);
 router.post("/update-balance/:email/:message", balanceUpdate);

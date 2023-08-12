@@ -30,37 +30,40 @@ const sendMessageWithMediaByCount = (res, email, chatId, media, text, csv) => {
 
       const messageCount = Number(results[0].message);
       const updatedBalance = messageCount - 1;
+      try {
+        if (messageCount > 0) {
+          client.sendMessage(chatId, media, {
+            caption: text,
+          });
 
-      if (messageCount > 0) {
-        client.sendMessage(chatId, media, {
-          caption: text,
-        });
-
-        db.query(
-          "UPDATE register SET message = ? WHERE email = ?",
-          [updatedBalance, email],
-          (err) => {
-            if (err) {
-              console.error("Error updating message count:", err);
-              return;
+          db.query(
+            "UPDATE register SET message = ? WHERE email = ?",
+            [updatedBalance, email],
+            (err) => {
+              if (err) {
+                console.error("Error updating message count:", err);
+                return;
+              }
             }
+          );
+          if (!csv) {
+            res.status(200).json({
+              success: 1,
+              message: "Message sent successfully",
+            });
           }
-        );
-        if (!csv) {
-          res.status(200).json({
-            success: 1,
-            message: "Message sent successfully",
+          const balance = {
+            updatedBalance,
+          };
+          msgCount.publish("messageCount", balance);
+        } else {
+          return res.send({
+            success: 0,
+            message: "You do not have enough balance",
           });
         }
-        const balance = {
-          updatedBalance,
-        };
-        msgCount.publish("messageCount", balance);
-      } else {
-        res.send({
-          success: 0,
-          message: "You do not have enough balance",
-        });
+      } catch (error) {
+        console.log(error);
       }
     }
   );
@@ -94,80 +97,76 @@ module.exports.sendMedia = async (req, res, next) => {
     }
     //Multiple Number csv
     if (!number && CSVData && text && files) {
-      const hasNull = CSVData.includes(null);
-
-      if (!hasNull) {
-        //Loading message during sending message
-        async function sendMessageWithDelay(num) {
-          return new Promise((resolve) => {
-            setTimeout(() => {
-              const message = `Sending message to ${num}`;
-              channel2.publish("loading-messages", message);
-              resolve();
-            }, 2000);
-          });
-        }
-
-        async function sendLoadingMessages() {
-          channel2.publish("loading-messages", "Sending messages...");
-          for (let i = 0; i < CSVData.length; i++) {
-            await sendMessageWithDelay(CSVData[i]);
-          }
-          channel2.publish("loading-messages", "All messages sent!");
-        }
-
-        function showLoadingMessage() {
-          const intervalId = setInterval(() => {
-            process.stdout.write(".");
-          }, 700);
-
-          return () => {
-            clearInterval(intervalId);
-          };
-        }
-
-        const stopLoadingMessage = showLoadingMessage();
-        sendLoadingMessages().then(() => {
-          stopLoadingMessage();
+      const filteredNullData = CSVData.filter((value) => value !== null);
+      async function sendMessageWithDelay(num) {
+        return new Promise((resolve) => {
+          setTimeout(() => {
+            const message = `Sending message to ${num}`;
+            channel2.publish("loading-messages", message);
+            resolve();
+          }, 2000);
         });
-
-        async function sendMessage() {
-          const results = await Promise.all(CSVData.map(checkRegisteredNumber));
-          const unregisteredNumbers = CSVData.filter(
-            (number, index) => !results[index]
-          );
-          const registeredNumbers = CSVData.filter(
-            (number, index) => results[index]
-          );
-
-          const Unregistered = unregisteredNumbers.map(
-            (num, index) =>
-              `${num}, Fail, This mobile number is not registered in whatsapp`
-          );
-          const Registered = registeredNumbers.map(
-            (num, index) => `${num}, Sent`
-          );
-          makingCsv(Registered, Unregistered, res);
-
-          for (const phoneNumber of registeredNumbers) {
-            // const sanitized_number = phoneNumber
-            //   .toString()
-            //   .replace(/[- )(]/g, "");
-            const chatId = phoneNumber + "@c.us";
-            const media = new MessageMedia(
-              files.mimetype,
-              files.data.toString("base64"),
-              files.name
-            );
-            const csv = true;
-            sendMessageWithMediaByCount(res, email, chatId, media, text, csv);
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-          }
-        }
-        sendMessage();
-      } else {
-        console.log("Your csv file has null value");
       }
+
+      async function sendLoadingMessages() {
+        channel2.publish("loading-messages", "Sending messages...");
+        for (let i = 0; i < filteredNullData.length; i++) {
+          await sendMessageWithDelay(filteredNullData[i]);
+        }
+        channel2.publish("loading-messages", "All messages sent!");
+      }
+
+      function showLoadingMessage() {
+        const intervalId = setInterval(() => {
+          process.stdout.write(".");
+        }, 700);
+
+        return () => {
+          clearInterval(intervalId);
+        };
+      }
+
+      const stopLoadingMessage = showLoadingMessage();
+      sendLoadingMessages().then(() => {
+        stopLoadingMessage();
+      });
+
+      async function sendMessage() {
+        const results = await Promise.all(
+          filteredNullData.map(checkRegisteredNumber)
+        );
+        const unregisteredNumbers = filteredNullData.filter(
+          (number, index) => !results[index]
+        );
+        const registeredNumbers = filteredNullData.filter(
+          (number, index) => results[index]
+        );
+
+        const Unregistered = unregisteredNumbers.map(
+          (num, index) =>
+            `${num}, Fail, This mobile number is not registered in whatsapp`
+        );
+        const Registered = registeredNumbers.map(
+          (num, index) => `${num}, Sent`
+        );
+        makingCsv(Registered, Unregistered, res);
+
+        for (const phoneNumber of registeredNumbers) {
+          // const sanitized_number = phoneNumber
+          //   .toString()
+          //   .replace(/[- )(]/g, "");
+          const chatId = phoneNumber + "@c.us";
+          const media = new MessageMedia(
+            files.mimetype,
+            files.data.toString("base64"),
+            files.name
+          );
+          const csv = true;
+          sendMessageWithMediaByCount(res, email, chatId, media, text, csv);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+      }
+      sendMessage();
     }
   } catch (error) {
     return res.send({ error: "Please provide country code and valid number" });
