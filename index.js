@@ -9,7 +9,11 @@ const { ably } = require("./config/realtimeAbly.js");
 
 // http://localhost:3000
 //https://whatsbulk-self.vercel.app
+
 // url
+
+//I should be added env on vercel
+
 app.use(
   cors({
     origin: "http://localhost:3000",
